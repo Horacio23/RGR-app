@@ -1,4 +1,3 @@
-
 var options = {
   entry: "./js/app.js",
   output: {
