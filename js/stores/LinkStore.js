@@ -1,5 +1,5 @@
 import AppDispatcher from '../AppDispatcher';
-import { ActionTypes } from '../Constants';
+import ActionTypes from '../Constants';
 import { EventEmitter } from 'events';
 
 let _links = [];

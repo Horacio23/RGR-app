@@ -1,5 +1,5 @@
 import AppDispatcher from '../AppDispatcher';
-import { ActionTypes } from '../Constants';
+import ActionTypes from '../Constants';
 
 const ServerActions = {
     receiveLinks(links) {
