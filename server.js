@@ -13,9 +13,10 @@ const app = express();
 app.use(express.static('public'));
 
 ( async () => {
+  console.log('Starting the server');
+  
   let db = await MongoClient.connect('mongodb://localhost:27017/rgrjs');
   let schema = Schema(db);
-
   app.use('/graphql', graphQLHTTP({
       schema,
       graphiql: true,

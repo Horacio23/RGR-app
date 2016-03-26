@@ -1,19 +1,25 @@
 import {
     GraphQLSchema,
     GraphQLObjectType,
-    GraphQLInt,
     GraphQLString,
     GraphQLList,
 } from 'graphql';
 
-const Schema = (db) => {
-    let data = [
-      { counter: 42 },
-      { counter: 43 },
-      { counter: 44 },
-    ];
 
-    const linkType = new GraphQLObjectType({
+const Schema = (db) => {
+    let store = {};
+
+    let storeType = new GraphQLObjectType({
+        name: 'Store',
+        fields: () => ({
+          links: {
+              type: new GraphQLList(linkType), // type of the field you are asking for
+              resolve: () => db.collection('links').find({}).toArray(), // this fnc will exc when a query asks for the field
+          },
+        }),
+    });
+
+    let linkType = new GraphQLObjectType({
         name: 'Link',
         fields: () => ({
             _id: { type: GraphQLString },
@@ -26,13 +32,9 @@ const Schema = (db) => {
         query: new GraphQLObjectType({
             name: 'Query',
             fields: () => ({
-                links: {
-                    type: new GraphQLList(linkType), // type of the field you are asking for
-                    resolve: () => db.collection('links').find({}).toArray(), // this fnc will exc when a query asks for the field
-                },
-                message: {
-                    type: GraphQLString,
-                    resolve: () => 'Hello GraphQL',
+                store: {
+                    type: storeType,
+                    resolve: () => store,
                 },
             }),
         }),
