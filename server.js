@@ -13,25 +13,29 @@ const app = express();
 app.use(express.static('public'));
 
 ( async () => {
-  console.log('Starting the server');
-  
-  let db = await MongoClient.connect('mongodb://localhost:27017/rgrjs');
-  let schema = Schema(db);
-  app.use('/graphql', graphQLHTTP({
-      schema,
-      graphiql: true,
-  }));
+  try{
+    console.log('Starting the server');
 
-  app.listen(3000, () => {
-      console.log('Listening on port 3000');
-  });
+    let db = await MongoClient.connect('mongodb://localhost:27017/rgrjs');
+    let schema = Schema(db);
+    app.use('/graphql', graphQLHTTP({
+        schema,
+        graphiql: true,
+    }));
 
-  // This doesnt have to be here since it will be generated every time the server runs but w.e
-  // Generate schema.json for Relay.
-  const json = await graphql(schema, introspectionQuery)
-  fs.writeFile('./data/schema.json', JSON.stringify(json, null, 2), err => {
-    if (err) throw err;
+    app.listen(3000, () => {
+        console.log('Listening on port 3000');
+    });
 
-    console.log('JSON schema created');
-  });
+    // This doesnt have to be here since it will be generated every time the server runs but w.e
+    // Generate schema.json for Relay.
+    const json = await graphql(schema, introspectionQuery)
+    fs.writeFile('./data/schema.json', JSON.stringify(json, null, 2), err => {
+      if (err) throw err;
+
+      console.log('JSON schema created');
+    });
+  } catch(e){
+    console.log(e);
+  }
 })();

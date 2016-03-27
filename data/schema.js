@@ -2,19 +2,29 @@ import {
     GraphQLSchema,
     GraphQLObjectType,
     GraphQLString,
-    GraphQLList,
+    GraphQLID,
+    GraphQLNonNull,
 } from 'graphql';
 
-
+import {
+    connectionDefinitions,
+    connectionArgs,
+    connectionFromPromisedArray,
+} from 'graphql-relay';
 const Schema = (db) => {
     let store = {};
+
 
     let storeType = new GraphQLObjectType({
         name: 'Store',
         fields: () => ({
-          links: {
-              type: new GraphQLList(linkType), // type of the field you are asking for
-              resolve: () => db.collection('links').find({}).toArray(), // this fnc will exc when a query asks for the field
+          linkConnection: {
+              type: linkConnection.connectionType,
+              args: connectionArgs, // first, last .... etc
+              resolve: (_, args) => connectionFromPromisedArray(
+                db.collection('links').find({}).toArray(), // this fnc will exc when a query asks for the field
+                args
+              ),
           },
         }),
     });
@@ -22,11 +32,20 @@ const Schema = (db) => {
     let linkType = new GraphQLObjectType({
         name: 'Link',
         fields: () => ({
-            _id: { type: GraphQLString },
+            id: {
+                type: new GraphQLNonNull(GraphQLID),
+                resolve: (obj) => obj._id,
+            },
             title: { type: GraphQLString },
             url: { type: GraphQLString },
         }),
     });
+
+    let linkConnection = connectionDefinitions({
+        name: 'Link',
+        nodeType: linkType,
+    });
+
 
     const schema = new GraphQLSchema({
         query: new GraphQLObjectType({
@@ -38,7 +57,6 @@ const Schema = (db) => {
                 },
             }),
         }),
-
 
     });
 
