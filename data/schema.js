@@ -25,7 +25,10 @@ const Schema = (db) => {
               type: linkConnection.connectionType,
               args: connectionArgs, // first, last .... etc
               resolve: (_, args) => connectionFromPromisedArray(
-                db.collection('links').find({}).toArray(), // this fnc will exc when a query asks for the field
+                db.collection('links').find({})
+                .sort({createdAt: -1})
+                .limit(args.first)
+                .toArray(), // this fnc will exc when a query asks for the field
                 args
               ),
           },
@@ -41,6 +44,10 @@ const Schema = (db) => {
             },
             title: { type: GraphQLString },
             url: { type: GraphQLString },
+            createdAt: {
+              type: GraphQLString,
+              resolve: (obj) => new Date(obj.createdAt).toISOString()
+            }
         }),
     });
 
@@ -69,7 +76,11 @@ const Schema = (db) => {
           }
         },
         mutateAndGetPayload: ({title, url}) => {
-          return db.collection('links').insertOne({title,url});
+          return db.collection('links').insertOne({
+            title,
+            url,
+            createdAt: Date.now()
+          });
         }
     })
 
