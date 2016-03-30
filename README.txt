@@ -8,3 +8,5 @@ do then jump to step 2
   4) webpack -wd
 
 Note: Nodemon and webpack need to run in different terminals
+
+
